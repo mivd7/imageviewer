@@ -19,9 +19,6 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
   const [panLocked, setPanLocked] = useState(false);
   const [zoomLocked, setZoomLocked] = useState(false);
 
-  console.log('PAN LOCKED?', panLocked);
-  console.log('ZOOMLOCKED?', zoomLocked);
-
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
