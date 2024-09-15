@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {TouchableOpacity, View} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 interface Props {
   onClose: () => void;
@@ -16,11 +17,12 @@ const ZoomControls: React.FC<Props> = ({
   panLocked,
   zoomLocked,
 }) => {
-  const zoomLockText = zoomLocked ? 'Unlock' : 'Lock';
-  const panLockText = panLocked ? 'Unlock' : 'Lock';
+  const [hideControls, setHideControls] = useState(false);
   return (
     <View
       style={{
+        position: 'absolute',
+        top: 0,
         width: '100%',
         display: 'flex',
         flexDirection: 'row',
@@ -36,33 +38,70 @@ const ZoomControls: React.FC<Props> = ({
           alignSelf: 'flex-end',
           backgroundColor: 'rgba(0,0,0,0.1)',
         }}
-        onPress={onLockZoom}>
-        <Text style={{fontSize: 12, color: 'white'}}>{zoomLockText} zoom</Text>
+        onPress={() => {
+          setHideControls(!hideControls);
+        }}>
+        <Icon
+          name="chevron-collapse"
+          style={{fontSize: hideControls ? 12 : 28, color: 'white'}}
+        />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          alignSelf: 'flex-end',
-          backgroundColor: 'rgba(0,0,0,0.1)',
-        }}
-        onPress={onLockPan}>
-        <Text style={{fontSize: 12, color: 'white'}}>{panLockText} pan</Text>
-      </TouchableOpacity>
+      {!hideControls && (
+        <>
+          <View style={{flexDirection: 'row', display: 'flex', gap: 20}}>
+            <TouchableOpacity
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                backgroundColor: 'rgba(0,0,0,0.1)',
+              }}
+              onPress={onLockZoom}>
+              <Icon
+                name="search"
+                style={{
+                  fontSize: 28,
+                  color: 'white',
+                  opacity: zoomLocked ? 0.5 : 1,
+                }}
+              />
+            </TouchableOpacity>
 
-      <TouchableOpacity
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          alignSelf: 'flex-end',
-          backgroundColor: 'rgba(0,0,0,0.1)',
-        }}
-        onPress={onClose}>
-        <Text style={{fontSize: 12, color: 'white'}}>X</Text>
-      </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                backgroundColor: 'rgba(0,0,0,0.1)',
+              }}
+              onPress={onLockPan}>
+              <Icon
+                name="expand"
+                style={{
+                  fontSize: 28,
+                  color: 'white',
+                  opacity: panLocked ? 0.5 : 1,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignSelf: 'flex-end',
+              backgroundColor: 'rgba(0,0,0,0.1)',
+            }}
+            onPress={onClose}>
+            <Icon name="close" style={{fontSize: 28, color: 'white'}} />
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };

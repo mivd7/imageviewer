@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import {
-  CameraRoll,
+  Album,
+  GetPhotosParams,
   PhotoIdentifier,
 } from '@react-native-camera-roll/camera-roll';
-import React, {FC, useCallback, useEffect, useState} from 'react';
+import React, {FC, useState} from 'react';
 import {
   Image,
   ScrollView,
@@ -12,27 +13,35 @@ import {
 } from 'react-native';
 import FlexLayout, {baseStyles} from './layout/FlexLayout';
 import ZoomView from './ZoomView';
+import AlbumSelect from './AlbumSelect';
+import useImageFetcher from '../hooks/useImageFetcher';
 
 const ImageGallery: FC = () => {
-  const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
+  const {photos, albums, fetchPhotos} = useImageFetcher();
   const [zoomedInPhoto, setZoomedInPhoto] = useState<PhotoIdentifier>();
+  const [selectedAlbum, setSelectedAlbum] = useState<Album>();
   const {height} = useWindowDimensions();
-  const fetchPhotos = useCallback(async () => {
-    const res = await CameraRoll.getPhotos({
-      first: 10,
-      assetType: 'Photos',
-    });
-    setPhotos(res?.edges);
-  }, []);
 
-  useEffect(() => {
-    if (!photos.length) {
-      fetchPhotos();
-    }
-  }, [photos, fetchPhotos]);
+  const onSelect = ({title, type, id}: Album) => {
+    const params: GetPhotosParams = {
+      first: 24,
+      groupName: title,
+      groupTypes: type,
+    };
+    fetchPhotos(params).then(() =>
+      setSelectedAlbum(albums.find(album => album.id === id)),
+    );
+  };
 
   return !zoomedInPhoto ? (
-    <ScrollView contentContainerStyle={{height}}>
+    <ScrollView
+      contentContainerStyle={{height, width: '100%'}}
+      style={{backgroundColor: 'aliceblue'}}>
+      <AlbumSelect
+        albums={albums}
+        onSelect={onSelect}
+        selectedAlbum={selectedAlbum}
+      />
       <FlexLayout
         styles={{
           paddingLeft: 16,
