@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useRef, createRef} from 'react';
-import {Animated} from 'react-native';
+import {Animated, Text, TouchableOpacity} from 'react-native';
 import {
   GestureHandlerRootView,
   HandlerStateChangeEvent,
@@ -10,7 +10,10 @@ import {
   State,
 } from 'react-native-gesture-handler';
 
-const ZoomView: React.FC<{imageUri: string}> = ({imageUri}) => {
+const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
+  imageUri,
+  onClose,
+}) => {
   const [panEnabled, setPanEnabled] = useState(false);
 
   const scale = useRef(new Animated.Value(1)).current;
@@ -81,7 +84,22 @@ const ZoomView: React.FC<{imageUri: string}> = ({imageUri}) => {
         enabled={panEnabled}
         failOffsetX={[-1000, 1000]}
         shouldCancelWhenOutside>
-        <Animated.View>
+        <Animated.View style={{position: 'relative'}}>
+          <TouchableOpacity
+            style={{
+              padding: 12,
+              position: 'absolute',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              top: 0,
+              zIndex: 10,
+              alignSelf: 'flex-end',
+              backgroundColor: 'aliceblue',
+            }}
+            onPress={onClose}>
+            <Text style={{fontSize: 12}}>Close</Text>
+          </TouchableOpacity>
           <PinchGestureHandler
             ref={pinchRef}
             onGestureEvent={onPinchEvent}
