@@ -10,7 +10,8 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
-import FlexLayout, {baseStyles} from './FlexLayout';
+import FlexLayout, {baseStyles} from './layout/FlexLayout';
+import ZoomView from './layout/ZoomView';
 
 const ImageGallery: FC = () => {
   const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
@@ -55,11 +56,11 @@ const ImageGallery: FC = () => {
       </FlexLayout>
     </ScrollView>
   ) : (
-    <TouchableOpacity onPress={() => setZoomedInPhoto(undefined)}>
-      <Image
-        source={{uri: zoomedInPhoto.node.image.uri}}
-        style={{height: windowDimensions.height, width: windowDimensions.width}}
-      />
+    <TouchableOpacity
+      activeOpacity={1}
+      style={{width: windowDimensions.width, height: windowDimensions.height}}
+      onPress={() => setZoomedInPhoto(undefined)}>
+      <ZoomView imageUri={zoomedInPhoto.node.image.uri} />
     </TouchableOpacity>
   );
 };
