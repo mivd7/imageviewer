@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useRef, createRef} from 'react';
-import {Animated, Text, TouchableOpacity, View} from 'react-native';
+import {Animated, StatusBar, Text, TouchableOpacity, View} from 'react-native';
 import {
   GestureHandlerRootView,
   HandlerStateChangeEvent,
@@ -15,6 +15,7 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
   onClose,
 }) => {
   const [panEnabled, setPanEnabled] = useState(false);
+  const [locked, setLocked] = useState(false);
 
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -77,11 +78,13 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
   return (
     <GestureHandlerRootView
       style={{width: '100%', height: '100%', backgroundColor: 'black'}}>
+      <StatusBar hidden />
+
       <PanGestureHandler
         onGestureEvent={onPanEvent}
         ref={panRef}
         simultaneousHandlers={[pinchRef]}
-        enabled={panEnabled}
+        enabled={!locked && panEnabled}
         failOffsetX={[-1000, 1000]}
         shouldCancelWhenOutside>
         <Animated.View style={{position: 'relative'}}>
@@ -91,6 +94,8 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
+              padding: 8,
+              zIndex: 10,
             }}>
             <TouchableOpacity
               style={{
@@ -100,8 +105,25 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
                 alignSelf: 'flex-end',
                 backgroundColor: 'rgba(0,0,0,0.1)',
               }}
-              onPress={onClose}>
-              <Text style={{fontSize: 12, color: 'white'}}>Close</Text>
+              onPress={() => {
+                setLocked(!locked);
+                setPanEnabled(!panEnabled);
+              }}>
+              <Text style={{fontSize: 12, color: 'white'}}>Lock zoom</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                backgroundColor: 'rgba(0,0,0,0.1)',
+              }}
+              onPress={() => {
+                setLocked(!locked);
+                setPanEnabled(!panEnabled);
+              }}>
+              <Text style={{fontSize: 12, color: 'white'}}>Lock all</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
@@ -112,7 +134,7 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
                 backgroundColor: 'rgba(0,0,0,0.1)',
               }}
               onPress={onClose}>
-              <Text style={{fontSize: 12, color: 'white'}}>Close</Text>
+              <Text style={{fontSize: 12, color: 'white'}}>X</Text>
             </TouchableOpacity>
           </View>
 
@@ -120,7 +142,8 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
             ref={pinchRef}
             onGestureEvent={onPinchEvent}
             simultaneousHandlers={[panRef]}
-            onHandlerStateChange={handlePinchStateChange}>
+            onHandlerStateChange={handlePinchStateChange}
+            enabled={!locked}>
             <Animated.Image
               source={{
                 uri: imageUri,
@@ -130,7 +153,7 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
                 height: '100%',
                 transform: [{scale}, {translateX}, {translateY}],
               }}
-              resizeMode="contain"
+              resizeMode="cover"
             />
           </PinchGestureHandler>
         </Animated.View>
