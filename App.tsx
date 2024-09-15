@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, SafeAreaView} from 'react-native';
+import {SafeAreaView} from 'react-native';
 import PermissionWrapper from './components/PermissionWrapper';
 import ImageGallery from './components/ImageGallery';
 

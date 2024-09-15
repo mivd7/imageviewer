@@ -4,18 +4,13 @@ import {
   PhotoIdentifier,
 } from '@react-native-camera-roll/camera-roll';
 import React, {FC, useCallback, useEffect, useState} from 'react';
-import {
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  useWindowDimensions,
-} from 'react-native';
-import FlexLayout, {baseStyles} from './FlexLayout';
+import {Image, ScrollView, TouchableOpacity} from 'react-native';
+import FlexLayout, {baseStyles} from './layout/FlexLayout';
+import ZoomView from './ZoomView';
 
 const ImageGallery: FC = () => {
   const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
   const [zoomedInPhoto, setZoomedInPhoto] = useState<PhotoIdentifier>();
-  const windowDimensions = useWindowDimensions();
   const fetchPhotos = useCallback(async () => {
     const res = await CameraRoll.getPhotos({
       first: 10,
@@ -55,12 +50,10 @@ const ImageGallery: FC = () => {
       </FlexLayout>
     </ScrollView>
   ) : (
-    <TouchableOpacity onPress={() => setZoomedInPhoto(undefined)}>
-      <Image
-        source={{uri: zoomedInPhoto.node.image.uri}}
-        style={{height: windowDimensions.height, width: windowDimensions.width}}
-      />
-    </TouchableOpacity>
+    <ZoomView
+      imageUri={zoomedInPhoto.node.image.uri}
+      onClose={() => setZoomedInPhoto(undefined)}
+    />
   );
 };
 

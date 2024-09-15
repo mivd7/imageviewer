@@ -4,7 +4,6 @@ import Permissions, {PERMISSIONS} from 'react-native-permissions';
 
 const PermissionWrapper: FC<{children: ReactNode}> = ({children}) => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);
-
   const openSettingsAlert = useCallback(({title}: {title: string}) => {
     Alert.alert(title, '', [
       {
