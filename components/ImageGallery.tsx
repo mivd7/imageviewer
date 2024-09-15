@@ -1,13 +1,21 @@
+/* eslint-disable react-native/no-inline-styles */
 import {
   CameraRoll,
   PhotoIdentifier,
 } from '@react-native-camera-roll/camera-roll';
 import React, {FC, useCallback, useEffect, useState} from 'react';
-import {Image, ScrollView} from 'react-native';
+import {
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import FlexLayout, {baseStyles} from './FlexLayout';
 
 const ImageGallery: FC = () => {
   const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
+  const [zoomedInPhoto, setZoomedInPhoto] = useState<PhotoIdentifier>();
+  const windowDimensions = useWindowDimensions();
   const fetchPhotos = useCallback(async () => {
     const res = await CameraRoll.getPhotos({
       first: 10,
@@ -22,7 +30,7 @@ const ImageGallery: FC = () => {
     }
   }, [photos, fetchPhotos]);
 
-  return (
+  return !zoomedInPhoto ? (
     <ScrollView>
       <FlexLayout
         styles={{
@@ -32,26 +40,27 @@ const ImageGallery: FC = () => {
           justifyContent: 'center',
           gap: 8,
         }}>
-        {photos.map((p, i) => {
+        {photos.map(photo => {
           return (
-            <Image
-              key={i}
-              style={baseStyles.box}
-              source={{uri: p.node.image.uri}}
-            />
-          );
-        })}
-        {photos.map((p, i) => {
-          return (
-            <Image
-              key={i}
-              style={baseStyles.box}
-              source={{uri: p.node.image.uri}}
-            />
+            <TouchableOpacity
+              key={photo.node.id}
+              onPress={() => setZoomedInPhoto(photo)}>
+              <Image
+                style={baseStyles.box}
+                source={{uri: photo.node.image.uri}}
+              />
+            </TouchableOpacity>
           );
         })}
       </FlexLayout>
     </ScrollView>
+  ) : (
+    <TouchableOpacity onPress={() => setZoomedInPhoto(undefined)}>
+      <Image
+        source={{uri: zoomedInPhoto.node.image.uri}}
+        style={{height: windowDimensions.height, width: windowDimensions.width}}
+      />
+    </TouchableOpacity>
   );
 };
 
