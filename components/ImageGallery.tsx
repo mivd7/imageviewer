@@ -6,7 +6,7 @@ import {
 import React, {FC, useCallback, useEffect, useState} from 'react';
 import {Image, ScrollView, TouchableOpacity} from 'react-native';
 import FlexLayout, {baseStyles} from './layout/FlexLayout';
-import ZoomView from './layout/ZoomView';
+import ZoomView from './ZoomView';
 
 const ImageGallery: FC = () => {
   const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
