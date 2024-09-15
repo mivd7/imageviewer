@@ -14,23 +14,29 @@ import {
 import FlexLayout, {baseStyles} from './layout/FlexLayout';
 import ZoomView from './ZoomView';
 import AlbumSelect from './AlbumSelect';
-import useImageFetcher from '../hooks/useImageFetcher';
+import useImageFetcher, {defaultParams} from '../hooks/useImageFetcher';
 
 const ImageGallery: FC = () => {
   const {photos, albums, fetchPhotos} = useImageFetcher();
   const [zoomedInPhoto, setZoomedInPhoto] = useState<PhotoIdentifier>();
-  const [selectedAlbum, setSelectedAlbum] = useState<Album>();
+  const [selectedAlbum, setSelectedAlbum] = useState<Partial<Album>>();
   const {height} = useWindowDimensions();
 
-  const onSelect = ({title, type, id}: Album) => {
-    const params: GetPhotosParams = {
-      first: 24,
-      groupName: title,
-      groupTypes: type,
-    };
-    fetchPhotos(params).then(() =>
-      setSelectedAlbum(albums.find(album => album.id === id)),
-    );
+  const onSelect = (album: Album) => {
+    if (!album.id) {
+      fetchPhotos(defaultParams);
+      setSelectedAlbum({title: 'All'});
+    } else {
+      const {title, type, id} = album;
+      const params: GetPhotosParams = {
+        first: 24,
+        groupName: title,
+        groupTypes: type,
+      };
+      fetchPhotos(params).finally(() =>
+        setSelectedAlbum(albums.find(a => a.id === id)),
+      );
+    }
   };
 
   return !zoomedInPhoto ? (

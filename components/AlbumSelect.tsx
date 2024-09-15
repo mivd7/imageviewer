@@ -7,11 +7,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 interface Props {
   albums: Album[];
-  selectedAlbum: Album | undefined;
+  selectedAlbum: Partial<Album> | undefined;
   onSelect: (selectedItem: Album, index: number) => void;
 }
 
 const AlbumSelect: FC<Props> = ({albums, selectedAlbum, onSelect}) => {
+  console.log('selectedAlbum', selectedAlbum);
   return (
     <View
       style={{
@@ -20,7 +21,7 @@ const AlbumSelect: FC<Props> = ({albums, selectedAlbum, onSelect}) => {
         justifyContent: 'center',
       }}>
       <SelectDropdown
-        data={[{title: 'All', id: 'all'}, ...albums]}
+        data={[{title: 'All'}, ...albums]}
         defaultValue={selectedAlbum}
         onSelect={onSelect}
         renderButton={(selectedItem: Album, isOpen) => {

@@ -1,9 +1,8 @@
 import { PhotoIdentifier, Album, GetPhotosParams, CameraRoll, GetAlbumsParams } from '@react-native-camera-roll/camera-roll';
 import { useCallback, useEffect, useState } from 'react';
 
-const defaultParams: GetPhotosParams = {
+export const defaultParams: GetPhotosParams = {
     first: 10,
-
     assetType: 'Photos',
 };
 
@@ -24,15 +23,13 @@ const useImageFetcher = () => {
 
     const fetchAlbums = useCallback(async (params: GetAlbumsParams) => {
         const res = await CameraRoll.getAlbums(params);
-        console.log('res', res);
         setAlbums(res);
     }, []);
 
     useEffect(() => {
         if (!albums.length) {
-            console.log('FETCHING ALBUMS');
             fetchAlbums({
-                assetType: 'All',
+                assetType: 'Photos',
                 albumType: 'All',
             });
         }
