@@ -6,18 +6,18 @@ interface Props {
   onClose: () => void;
   onLockZoom: () => void;
   onLockPan: () => void;
-  panEnabled: boolean;
-  zoomEnabled: boolean;
+  panLocked: boolean;
+  zoomLocked: boolean;
 }
 const ZoomControls: React.FC<Props> = ({
   onClose,
   onLockPan,
   onLockZoom,
-  panEnabled,
-  zoomEnabled,
+  panLocked,
+  zoomLocked,
 }) => {
-  const zoomLockText = zoomEnabled ? 'Lock' : 'Unlock';
-  const panLockText = panEnabled ? 'Lock' : 'Unlock';
+  const zoomLockText = zoomLocked ? 'Unlock' : 'Lock';
+  const panLockText = panLocked ? 'Unlock' : 'Lock';
   return (
     <View
       style={{

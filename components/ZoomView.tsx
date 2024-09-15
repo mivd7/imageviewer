@@ -16,7 +16,11 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
   onClose,
 }) => {
   const [panEnabled, setPanEnabled] = useState(false);
-  const [locked, setLocked] = useState(false);
+  const [panLocked, setPanLocked] = useState(false);
+  const [zoomLocked, setZoomLocked] = useState(false);
+
+  console.log('PAN LOCKED?', panLocked);
+  console.log('ZOOMLOCKED?', zoomLocked);
 
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -50,7 +54,7 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
     nativeEvent,
   }: HandlerStateChangeEvent<PinchGestureHandlerEventPayload>) => {
     // enabled pan only after pinch-zoom
-    if (nativeEvent.state === State.ACTIVE) {
+    if (nativeEvent.state === State.ACTIVE && !panLocked) {
       setPanEnabled(true);
     }
 
@@ -85,27 +89,27 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
         onGestureEvent={onPanEvent}
         ref={panRef}
         simultaneousHandlers={[pinchRef]}
-        enabled={panEnabled}
+        enabled={panEnabled && !panLocked}
         failOffsetX={[-1000, 1000]}
         shouldCancelWhenOutside>
         <Animated.View style={{position: 'relative'}}>
           <ZoomControls
             onClose={onClose}
             onLockPan={() => {
-              setPanEnabled(!panEnabled);
+              setPanLocked(!panLocked);
             }}
             onLockZoom={() => {
-              setLocked(!locked);
+              setZoomLocked(!zoomLocked);
             }}
-            panEnabled={panEnabled}
-            zoomEnabled={!locked}
+            panLocked={panLocked}
+            zoomLocked={zoomLocked}
           />
           <PinchGestureHandler
             ref={pinchRef}
             onGestureEvent={onPinchEvent}
             simultaneousHandlers={[panRef]}
             onHandlerStateChange={handlePinchStateChange}
-            enabled={!locked}>
+            enabled={!zoomLocked}>
             <Animated.Image
               source={{
                 uri: imageUri,
