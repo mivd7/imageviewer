@@ -9,7 +9,7 @@ const FlexLayout: FC<{children: ReactNode; styles?: StyleProp<ViewStyle>}> = ({
 export const baseStyles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 8,
+    paddingTop: 16,
     backgroundColor: 'aliceblue',
   },
   box: {
