@@ -1,105 +1,141 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+/* eslint-disable react-native/no-inline-styles */
+import React, {useCallback, useEffect, useState} from 'react';
+import {Alert, Linking, Platform, SafeAreaView, Text} from 'react-native';
+import Permissions, {PERMISSIONS} from 'react-native-permissions';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App: React.FC = () => {
+  const [hasPermission, setHasPermission] = useState<boolean>(false);
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  const openSettingsAlert = useCallback(({title}: {title: string}) => {
+    Alert.alert(title, '', [
+      {
+        isPreferred: true,
+        style: 'default',
+        text: 'Open Settings',
+        onPress: () => Linking?.openSettings(),
+      },
+      {
+        isPreferred: false,
+        style: 'destructive',
+        text: 'Cancel',
+        onPress: () => {},
+      },
+    ]);
+  }, []);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const checkAndroidPermissions = useCallback(async () => {
+    if (parseInt(Platform.Version as string, 10) >= 33) {
+      const permissions = await Permissions.checkMultiple([
+        PERMISSIONS.ANDROID.READ_MEDIA_IMAGES,
+        PERMISSIONS.ANDROID.READ_MEDIA_VIDEO,
+      ]);
+      if (
+        permissions[PERMISSIONS.ANDROID.READ_MEDIA_IMAGES] ===
+          Permissions.RESULTS.GRANTED &&
+        permissions[PERMISSIONS.ANDROID.READ_MEDIA_VIDEO] ===
+          Permissions.RESULTS.GRANTED
+      ) {
+        setHasPermission(true);
+        return;
+      }
+      const res = await Permissions.requestMultiple([
+        PERMISSIONS.ANDROID.READ_MEDIA_IMAGES,
+        PERMISSIONS.ANDROID.READ_MEDIA_VIDEO,
+      ]);
+      if (
+        res[PERMISSIONS.ANDROID.READ_MEDIA_IMAGES] ===
+          Permissions.RESULTS.GRANTED &&
+        res[PERMISSIONS.ANDROID.READ_MEDIA_VIDEO] ===
+          Permissions.RESULTS.GRANTED
+      ) {
+        setHasPermission(true);
+      }
+      if (
+        res[PERMISSIONS.ANDROID.READ_MEDIA_IMAGES] ===
+          Permissions.RESULTS.DENIED ||
+        res[PERMISSIONS.ANDROID.READ_MEDIA_VIDEO] === Permissions.RESULTS.DENIED
+      ) {
+        checkAndroidPermissions();
+      }
+      if (
+        res[PERMISSIONS.ANDROID.READ_MEDIA_IMAGES] ===
+          Permissions.RESULTS.BLOCKED ||
+        res[PERMISSIONS.ANDROID.READ_MEDIA_VIDEO] ===
+          Permissions.RESULTS.BLOCKED
+      ) {
+        openSettingsAlert({
+          title: 'Please allow access to your photos and videos from settings',
+        });
+      }
+    } else {
+      const permission = await Permissions.check(
+        PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
+      );
+      if (permission === Permissions.RESULTS.GRANTED) {
+        setHasPermission(true);
+        return;
+      }
+      const res = await Permissions.request(
+        PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
+      );
+      if (res === Permissions.RESULTS.GRANTED) {
+        setHasPermission(true);
+      }
+      if (res === Permissions.RESULTS.DENIED) {
+        checkAndroidPermissions();
+      }
+      if (res === Permissions.RESULTS.BLOCKED) {
+        openSettingsAlert({
+          title: 'Please allow access to the photo library from settings',
+        });
+      }
+    }
+  }, [openSettingsAlert]);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const checkPermission = useCallback(async () => {
+    if (Platform.OS === 'ios') {
+      const permission = await Permissions.check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+      if (
+        permission === Permissions.RESULTS.GRANTED ||
+        permission === Permissions.RESULTS.LIMITED
+      ) {
+        setHasPermission(true);
+        return;
+      }
+      const res = await Permissions.request(PERMISSIONS.IOS.PHOTO_LIBRARY);
+      if (
+        res === Permissions.RESULTS.GRANTED ||
+        res === Permissions.RESULTS.LIMITED
+      ) {
+        setHasPermission(true);
+      }
+      if (res === Permissions.RESULTS.BLOCKED) {
+        openSettingsAlert({
+          title: 'Please allow access to the photo library from settings',
+        });
+      }
+    } else if (Platform.OS === 'android') {
+      checkAndroidPermissions();
+    }
+  }, [checkAndroidPermissions, openSettingsAlert]);
+
+  useEffect(() => {
+    checkPermission();
+  }, [checkPermission]);
+
   return (
-    <View style={styles.sectionContainer}>
+    <SafeAreaView>
       <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
+        style={{
+          fontSize: 22,
+          textAlign: 'center',
+          fontWeight: '600',
+          padding: 24,
+        }}>
+        {`Permission: ${hasPermission ? 'Granted ✅' : 'Denied ❌'}`}
       </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">Hello let me see your images plox</Section>
-        </View>
-      </ScrollView>
     </SafeAreaView>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
