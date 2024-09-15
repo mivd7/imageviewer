@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useRef, createRef} from 'react';
-import {Animated, Text, TouchableOpacity} from 'react-native';
+import {Animated, Text, TouchableOpacity, View} from 'react-native';
 import {
   GestureHandlerRootView,
   HandlerStateChangeEvent,
@@ -85,21 +85,37 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
         failOffsetX={[-1000, 1000]}
         shouldCancelWhenOutside>
         <Animated.View style={{position: 'relative'}}>
-          <TouchableOpacity
+          <View
             style={{
-              padding: 12,
-              position: 'absolute',
+              width: '100%',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              top: 0,
-              zIndex: 10,
-              alignSelf: 'flex-end',
-              backgroundColor: 'aliceblue',
-            }}
-            onPress={onClose}>
-            <Text style={{fontSize: 12}}>Close</Text>
-          </TouchableOpacity>
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <TouchableOpacity
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                backgroundColor: 'rgba(0,0,0,0.1)',
+              }}
+              onPress={onClose}>
+              <Text style={{fontSize: 12, color: 'white'}}>Close</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                backgroundColor: 'rgba(0,0,0,0.1)',
+              }}
+              onPress={onClose}>
+              <Text style={{fontSize: 12, color: 'white'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+
           <PinchGestureHandler
             ref={pinchRef}
             onGestureEvent={onPinchEvent}
