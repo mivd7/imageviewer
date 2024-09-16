@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import {
-  CameraRoll,
+  Album,
+  GetPhotosParams,
   PhotoIdentifier,
 } from '@react-native-camera-roll/camera-roll';
-import React, {FC, useCallback, useEffect, useState} from 'react';
+import React, {FC, useState} from 'react';
 import {
   Image,
   ScrollView,
@@ -12,27 +13,43 @@ import {
 } from 'react-native';
 import FlexLayout, {baseStyles} from './layout/FlexLayout';
 import ZoomView from './ZoomView';
+import AlbumSelect, {defaultAlbum} from './AlbumSelect';
+import useImageFetcher, {defaultParams} from '../hooks/useImageFetcher';
 
 const ImageGallery: FC = () => {
-  const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
+  const {photos, albums, fetchPhotos} = useImageFetcher();
   const [zoomedInPhoto, setZoomedInPhoto] = useState<PhotoIdentifier>();
+  const [selectedAlbum, setSelectedAlbum] =
+    useState<Partial<Album>>(defaultAlbum);
   const {height} = useWindowDimensions();
-  const fetchPhotos = useCallback(async () => {
-    const res = await CameraRoll.getPhotos({
-      first: 10,
-      assetType: 'Photos',
-    });
-    setPhotos(res?.edges);
-  }, []);
 
-  useEffect(() => {
-    if (!photos.length) {
-      fetchPhotos();
+  const onSelect = (album: Album) => {
+    if (!album.id) {
+      // all photos option selected
+      fetchPhotos(defaultParams);
+      setSelectedAlbum(defaultAlbum);
+    } else {
+      const {title, type, id} = album;
+      const params: GetPhotosParams = {
+        first: 24,
+        groupName: title,
+        groupTypes: type,
+      };
+      fetchPhotos(params).finally(() =>
+        setSelectedAlbum(albums?.find(a => a.id === id) ?? defaultAlbum),
+      );
     }
-  }, [photos, fetchPhotos]);
+  };
 
   return !zoomedInPhoto ? (
-    <ScrollView contentContainerStyle={{height}}>
+    <ScrollView
+      contentContainerStyle={{height, width: '100%'}}
+      style={{backgroundColor: 'aliceblue'}}>
+      <AlbumSelect
+        albums={albums}
+        onSelect={onSelect}
+        selectedAlbum={selectedAlbum}
+      />
       <FlexLayout
         styles={{
           paddingLeft: 16,
