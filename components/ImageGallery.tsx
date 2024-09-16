@@ -13,19 +13,21 @@ import {
 } from 'react-native';
 import FlexLayout, {baseStyles} from './layout/FlexLayout';
 import ZoomView from './ZoomView';
-import AlbumSelect from './AlbumSelect';
+import AlbumSelect, {defaultAlbum} from './AlbumSelect';
 import useImageFetcher, {defaultParams} from '../hooks/useImageFetcher';
 
 const ImageGallery: FC = () => {
   const {photos, albums, fetchPhotos} = useImageFetcher();
   const [zoomedInPhoto, setZoomedInPhoto] = useState<PhotoIdentifier>();
-  const [selectedAlbum, setSelectedAlbum] = useState<Partial<Album>>();
+  const [selectedAlbum, setSelectedAlbum] =
+    useState<Partial<Album>>(defaultAlbum);
   const {height} = useWindowDimensions();
 
   const onSelect = (album: Album) => {
     if (!album.id) {
+      // all photos option selected
       fetchPhotos(defaultParams);
-      setSelectedAlbum({title: 'All'});
+      setSelectedAlbum(defaultAlbum);
     } else {
       const {title, type, id} = album;
       const params: GetPhotosParams = {
@@ -34,7 +36,7 @@ const ImageGallery: FC = () => {
         groupTypes: type,
       };
       fetchPhotos(params).finally(() =>
-        setSelectedAlbum(albums.find(a => a.id === id)),
+        setSelectedAlbum(albums?.find(a => a.id === id) ?? defaultAlbum),
       );
     }
   };

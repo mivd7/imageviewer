@@ -11,8 +11,9 @@ interface Props {
   onSelect: (selectedItem: Album, index: number) => void;
 }
 
+export const defaultAlbum: Partial<Album> = {title: 'All'};
+
 const AlbumSelect: FC<Props> = ({albums, selectedAlbum, onSelect}) => {
-  console.log('selectedAlbum', selectedAlbum);
   return (
     <View
       style={{
@@ -21,7 +22,7 @@ const AlbumSelect: FC<Props> = ({albums, selectedAlbum, onSelect}) => {
         justifyContent: 'center',
       }}>
       <SelectDropdown
-        data={[{title: 'All'}, ...albums]}
+        data={[defaultAlbum, ...albums]}
         defaultValue={selectedAlbum}
         onSelect={onSelect}
         renderButton={(selectedItem: Album, isOpen) => {
