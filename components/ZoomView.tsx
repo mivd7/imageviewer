@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {FC, useState} from 'react';
-import {Image, View, useWindowDimensions} from 'react-native';
+import {Image, StatusBar, View, useWindowDimensions} from 'react-native';
 import {
   ResumableZoom,
   getAspectRatioSize,
@@ -15,6 +15,7 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
   const {width} = useWindowDimensions();
   const [panLocked, setPanLocked] = useState(false);
   const [zoomLocked, setZoomLocked] = useState(false);
+  const [hideControls, setHideControls] = useState(false);
   // Gets the resolution of your image
   const {isFetching, resolution} = useImageResolution({uri: imageUri});
   if (isFetching || resolution === undefined) {
@@ -31,22 +32,26 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
     <View
       style={{
         flex: 1,
-        // justifyContent: 'center',
-        // alignItems: 'center',
         backgroundColor: 'black',
       }}>
-      <ZoomControls
-        onClose={onClose}
-        onLockPan={() => {
-          setPanLocked(!panLocked);
-        }}
-        onLockZoom={() => {
-          setZoomLocked(!zoomLocked);
-        }}
-        panLocked={panLocked}
-        zoomLocked={zoomLocked}
-      />
-      <ResumableZoom panEnabled={!panLocked} pinchEnabled={!zoomLocked}>
+      <StatusBar hidden />
+      {!hideControls && (
+        <ZoomControls
+          onClose={onClose}
+          onLockPan={() => {
+            setPanLocked(!panLocked);
+          }}
+          onLockZoom={() => {
+            setZoomLocked(!zoomLocked);
+          }}
+          panLocked={panLocked}
+          zoomLocked={zoomLocked}
+        />
+      )}
+      <ResumableZoom
+        onTap={() => setHideControls(!hideControls)}
+        panEnabled={!panLocked}
+        pinchEnabled={!zoomLocked}>
         <Image source={{uri: imageUri}} style={imageSize} />
       </ResumableZoom>
     </View>

@@ -17,7 +17,6 @@ const ZoomControls: React.FC<Props> = ({
   panLocked,
   zoomLocked,
 }) => {
-  const [hideControls, setHideControls] = useState(false);
   return (
     <View
       style={{
@@ -31,64 +30,29 @@ const ZoomControls: React.FC<Props> = ({
         justifyContent: 'space-between',
         zIndex: 10,
       }}>
-      <StatusBar hidden />
-      <TouchableOpacity
-        style={styles.controlButton}
-        onPress={() => {
-          setHideControls(!hideControls);
-        }}>
+      <TouchableOpacity style={styles.controlButton} onPress={onLockPan}>
         <Icon
-          name={
-            hideControls
-              ? 'keyboard-double-arrow-right'
-              : 'keyboard-double-arrow-left'
-          }
+          name="expand"
           style={{
             fontSize: 24,
             color: 'white',
-            opacity: hideControls ? 0.15 : 1,
+            opacity: panLocked ? 0.5 : 1,
           }}
         />
       </TouchableOpacity>
-
-      {!hideControls && (
-        <>
-          <View style={{flexDirection: 'row', display: 'flex', gap: 20}}>
-            <TouchableOpacity style={styles.controlButton} onPress={onLockZoom}>
-              <Icon
-                name="zoom-in"
-                style={{
-                  fontSize: 24,
-                  color: 'white',
-                  opacity: zoomLocked ? 0.5 : 1,
-                }}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.controlButton} onPress={onLockPan}>
-              <Icon
-                name="expand"
-                style={{
-                  fontSize: 24,
-                  color: 'white',
-                  opacity: panLocked ? 0.5 : 1,
-                }}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.controlButton} onPress={onClose}>
-            <Icon
-              name="close"
-              style={{
-                fontSize: 24,
-                color: 'white',
-                opacity: panLocked ? 0.5 : 1,
-              }}
-            />
-          </TouchableOpacity>
-        </>
-      )}
+      <TouchableOpacity style={styles.controlButton} onPress={onLockZoom}>
+        <Icon
+          name="zoom-in"
+          style={{
+            fontSize: 24,
+            color: 'white',
+            opacity: zoomLocked ? 0.5 : 1,
+          }}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.controlButton} onPress={onClose}>
+        <Icon name="close" style={styles.closeIcon} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -102,5 +66,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+  closeIcon: {
+    fontSize: 24,
+    color: 'white',
   },
 });
