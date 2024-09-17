@@ -1,11 +1,12 @@
 import React from 'react';
-import {SafeAreaView} from 'react-native';
+import {SafeAreaView, useWindowDimensions} from 'react-native';
 import PermissionWrapper from './components/PermissionWrapper';
 import ImageGallery from './components/ImageGallery';
 
 const App: React.FC = () => {
+  const {height} = useWindowDimensions();
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{height}}>
       <PermissionWrapper>
         <ImageGallery />
       </PermissionWrapper>

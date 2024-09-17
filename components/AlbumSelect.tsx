@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 interface Props {
   albums: Album[];
-  selectedAlbum: Partial<Album> | undefined;
+  selectedAlbum: Partial<Album>;
   onSelect: (selectedItem: Album, index: number) => void;
 }
 

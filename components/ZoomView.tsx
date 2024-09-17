@@ -20,6 +20,7 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
   const [zoomLocked, setZoomLocked] = useState(false);
 
   const scale = useRef(new Animated.Value(1)).current;
+  console.log('scale ref', scale);
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
 
@@ -58,6 +59,7 @@ const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
     // when scale < 1, reset scale back to original (1)
     const nScale = nativeEvent.scale;
     if (nativeEvent.state === State.END) {
+      console.log('animating... scale state', scale);
       if (nScale < 1) {
         Animated.spring(scale, {
           toValue: 1,

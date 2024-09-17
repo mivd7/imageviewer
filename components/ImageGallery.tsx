@@ -29,15 +29,13 @@ const ImageGallery: FC = () => {
       fetchPhotos(defaultParams);
       setSelectedAlbum(defaultAlbum);
     } else {
-      const {title, type, id} = album;
+      const {title, type} = album;
       const params: GetPhotosParams = {
         first: 24,
         groupName: title,
         groupTypes: type,
       };
-      fetchPhotos(params).finally(() =>
-        setSelectedAlbum(albums?.find(a => a.id === id) ?? defaultAlbum),
-      );
+      fetchPhotos(params).finally(() => setSelectedAlbum(album));
     }
   };
 

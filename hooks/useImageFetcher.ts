@@ -1,8 +1,9 @@
 import { PhotoIdentifier, Album, GetPhotosParams, CameraRoll, GetAlbumsParams } from '@react-native-camera-roll/camera-roll';
 import { useCallback, useEffect, useState } from 'react';
 
+export const DEFAULT_FIRST = 32;
 export const defaultParams: GetPhotosParams = {
-    first: 10,
+    first: DEFAULT_FIRST,
     assetType: 'Photos',
 };
 
