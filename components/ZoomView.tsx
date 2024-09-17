@@ -49,6 +49,7 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
         />
       )}
       <ResumableZoom
+        maxScale={20}
         onTap={() => setHideControls(!hideControls)}
         panEnabled={!panLocked}
         pinchEnabled={!zoomLocked}>
