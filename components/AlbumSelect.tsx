@@ -3,7 +3,7 @@ import {Album} from '@react-native-camera-roll/camera-roll';
 import React, {FC} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface Props {
   albums: Album[];
@@ -64,7 +64,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 32,
     backgroundColor: '#E9ECEF',
-    borderRadius: 12,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -77,7 +76,7 @@ const styles = StyleSheet.create({
     color: '#151E26',
   },
   dropdownButtonArrowStyle: {
-    fontSize: 12,
+    fontSize: 20,
   },
   dropdownButtonIconStyle: {
     fontSize: 12,
@@ -85,7 +84,6 @@ const styles = StyleSheet.create({
   },
   dropdownMenuStyle: {
     backgroundColor: '#E9ECEF',
-    borderRadius: 8,
   },
   dropdownItemStyle: {
     width: '100%',

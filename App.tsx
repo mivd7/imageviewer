@@ -6,7 +6,7 @@ import ImageGallery from './components/ImageGallery';
 const App: React.FC = () => {
   const {height} = useWindowDimensions();
   return (
-    <SafeAreaView style={{height}}>
+    <SafeAreaView style={{height, backgroundColor: 'black'}}>
       <PermissionWrapper>
         <ImageGallery />
       </PermissionWrapper>

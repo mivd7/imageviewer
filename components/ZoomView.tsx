@@ -1,129 +1,61 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useRef, createRef} from 'react';
-import {Animated, StatusBar} from 'react-native';
+import React, {FC, useState} from 'react';
+import {Image, StatusBar, View, useWindowDimensions} from 'react-native';
 import {
-  GestureHandlerRootView,
-  HandlerStateChangeEvent,
-  PanGestureHandler,
-  PinchGestureHandler,
-  PinchGestureHandlerEventPayload,
-  State,
-} from 'react-native-gesture-handler';
+  ResumableZoom,
+  getAspectRatioSize,
+  useImageResolution,
+} from 'react-native-zoom-toolkit';
 import ZoomControls from './ZoomControls';
 
-const ZoomView: React.FC<{imageUri: string; onClose: () => void}> = ({
+const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
   imageUri,
   onClose,
 }) => {
-  const [panEnabled, setPanEnabled] = useState(false);
+  const {width} = useWindowDimensions();
   const [panLocked, setPanLocked] = useState(false);
   const [zoomLocked, setZoomLocked] = useState(false);
+  const [hideControls, setHideControls] = useState(false);
+  // Gets the resolution of your image
+  const {isFetching, resolution} = useImageResolution({uri: imageUri});
+  if (isFetching || resolution === undefined) {
+    return null;
+  }
 
-  const scale = useRef(new Animated.Value(1)).current;
-  console.log('scale ref', scale);
-  const translateX = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
-
-  const pinchRef = createRef();
-  const panRef = createRef();
-
-  const onPinchEvent = Animated.event(
-    [
-      {
-        nativeEvent: {scale},
-      },
-    ],
-    {useNativeDriver: true},
-  );
-
-  const onPanEvent = Animated.event(
-    [
-      {
-        nativeEvent: {
-          translationX: translateX,
-          translationY: translateY,
-        },
-      },
-    ],
-    {useNativeDriver: true},
-  );
-
-  const handlePinchStateChange = ({
-    nativeEvent,
-  }: HandlerStateChangeEvent<PinchGestureHandlerEventPayload>) => {
-    // enabled pan only after pinch-zoom
-    if (nativeEvent.state === State.ACTIVE && !panLocked) {
-      setPanEnabled(true);
-    }
-
-    // when scale < 1, reset scale back to original (1)
-    const nScale = nativeEvent.scale;
-    if (nativeEvent.state === State.END) {
-      console.log('animating... scale state', scale);
-      if (nScale < 1) {
-        Animated.spring(scale, {
-          toValue: 1,
-          useNativeDriver: true,
-        }).start();
-        Animated.spring(translateX, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-
-        setPanEnabled(false);
-      }
-    }
-  };
+  // An utility function to get the size without compromising the aspect ratio
+  const imageSize = getAspectRatioSize({
+    aspectRatio: resolution.width / resolution.height,
+    width: width,
+  });
 
   return (
-    <GestureHandlerRootView
-      style={{width: '100%', height: '100%', backgroundColor: 'black'}}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: 'black',
+      }}>
       <StatusBar hidden />
-
-      <PanGestureHandler
-        onGestureEvent={onPanEvent}
-        ref={panRef}
-        simultaneousHandlers={[pinchRef]}
-        enabled={panEnabled && !panLocked}
-        failOffsetX={[-1000, 1000]}
-        shouldCancelWhenOutside>
-        <Animated.View style={{position: 'relative'}}>
-          <ZoomControls
-            onClose={onClose}
-            onLockPan={() => {
-              setPanLocked(!panLocked);
-            }}
-            onLockZoom={() => {
-              setZoomLocked(!zoomLocked);
-            }}
-            panLocked={panLocked}
-            zoomLocked={zoomLocked}
-          />
-          <PinchGestureHandler
-            ref={pinchRef}
-            onGestureEvent={onPinchEvent}
-            simultaneousHandlers={[panRef]}
-            onHandlerStateChange={handlePinchStateChange}
-            enabled={!zoomLocked}>
-            <Animated.Image
-              source={{
-                uri: imageUri,
-              }}
-              style={{
-                width: '100%',
-                height: '100%',
-                transform: [{scale}, {translateX}, {translateY}],
-              }}
-              resizeMode="contain"
-            />
-          </PinchGestureHandler>
-        </Animated.View>
-      </PanGestureHandler>
-    </GestureHandlerRootView>
+      {!hideControls && (
+        <ZoomControls
+          onClose={onClose}
+          onLockPan={() => {
+            setPanLocked(!panLocked);
+          }}
+          onLockZoom={() => {
+            setZoomLocked(!zoomLocked);
+          }}
+          panLocked={panLocked}
+          zoomLocked={zoomLocked}
+        />
+      )}
+      <ResumableZoom
+        maxScale={20}
+        onTap={() => setHideControls(!hideControls)}
+        panEnabled={!panLocked}
+        pinchEnabled={!zoomLocked}>
+        <Image source={{uri: imageUri}} style={imageSize} />
+      </ResumableZoom>
+    </View>
   );
 };
 
