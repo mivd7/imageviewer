@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {TouchableOpacity, View} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface Props {
   onClose: () => void;
@@ -23,65 +23,53 @@ const ZoomControls: React.FC<Props> = ({
       style={{
         position: 'absolute',
         top: 0,
+        paddingRight: 8,
+        paddingLeft: 8,
         width: '100%',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 8,
         zIndex: 10,
       }}>
+      <StatusBar hidden />
       <TouchableOpacity
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          alignSelf: 'flex-end',
-          backgroundColor: 'rgba(0,0,0,0.1)',
-        }}
+        style={styles.controlButton}
         onPress={() => {
           setHideControls(!hideControls);
         }}>
         <Icon
-          name="chevron-collapse"
-          style={{fontSize: hideControls ? 12 : 28, color: 'white'}}
+          name={
+            hideControls
+              ? 'keyboard-double-arrow-right'
+              : 'keyboard-double-arrow-left'
+          }
+          style={{
+            fontSize: 24,
+            color: 'white',
+            opacity: hideControls ? 0.15 : 1,
+          }}
         />
       </TouchableOpacity>
 
       {!hideControls && (
         <>
           <View style={{flexDirection: 'row', display: 'flex', gap: 20}}>
-            <TouchableOpacity
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignSelf: 'flex-end',
-                backgroundColor: 'rgba(0,0,0,0.1)',
-              }}
-              onPress={onLockZoom}>
+            <TouchableOpacity style={styles.controlButton} onPress={onLockZoom}>
               <Icon
-                name="search"
+                name="zoom-in"
                 style={{
-                  fontSize: 28,
+                  fontSize: 24,
                   color: 'white',
                   opacity: zoomLocked ? 0.5 : 1,
                 }}
               />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignSelf: 'flex-end',
-                backgroundColor: 'rgba(0,0,0,0.1)',
-              }}
-              onPress={onLockPan}>
+            <TouchableOpacity style={styles.controlButton} onPress={onLockPan}>
               <Icon
                 name="expand"
                 style={{
-                  fontSize: 28,
+                  fontSize: 24,
                   color: 'white',
                   opacity: panLocked ? 0.5 : 1,
                 }}
@@ -89,16 +77,15 @@ const ZoomControls: React.FC<Props> = ({
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              alignSelf: 'flex-end',
-              backgroundColor: 'rgba(0,0,0,0.1)',
-            }}
-            onPress={onClose}>
-            <Icon name="close" style={{fontSize: 28, color: 'white'}} />
+          <TouchableOpacity style={styles.controlButton} onPress={onClose}>
+            <Icon
+              name="close"
+              style={{
+                fontSize: 24,
+                color: 'white',
+                opacity: panLocked ? 0.5 : 1,
+              }}
+            />
           </TouchableOpacity>
         </>
       )}
@@ -107,3 +94,13 @@ const ZoomControls: React.FC<Props> = ({
 };
 
 export default ZoomControls;
+
+const styles = StyleSheet.create({
+  controlButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+});
