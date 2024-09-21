@@ -1,12 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {FC, useState} from 'react';
+import React, {FC, useCallback, useRef, useState} from 'react';
 import {Image, StatusBar, View, useWindowDimensions} from 'react-native';
 import {
   ResumableZoom,
+  ResumableZoomType,
   getAspectRatioSize,
   useImageResolution,
 } from 'react-native-zoom-toolkit';
 import ZoomControls from './ZoomControls';
+
+const INITIAL_MAX_SCALE = 6;
+const MAX_SCALE = 20;
 
 const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
   imageUri,
@@ -16,8 +20,39 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
   const [panLocked, setPanLocked] = useState(false);
   const [zoomLocked, setZoomLocked] = useState(false);
   const [hideControls, setHideControls] = useState(false);
-  // Gets the resolution of your image
+  const [prevScale, setPrevScale] = useState(INITIAL_MAX_SCALE);
+  const [currentMaxScale, setCurrentMaxScale] = useState(INITIAL_MAX_SCALE);
+
+  const zoomRef = useRef<ResumableZoomType>(null);
+
   const {isFetching, resolution} = useImageResolution({uri: imageUri});
+
+  const updateMaxScale = useCallback(() => {
+    const zoomState = zoomRef.current?.requestState();
+    if (!zoomState) {
+      return;
+    }
+    const currentScale = zoomState.scale;
+    if (currentScale < prevScale) {
+      // scale is decreasing
+      setCurrentMaxScale(
+        currentScale - 2 < INITIAL_MAX_SCALE
+          ? INITIAL_MAX_SCALE
+          : currentMaxScale - 2,
+      );
+    }
+
+    if (currentScale > prevScale) {
+      // scale is increasing
+      setCurrentMaxScale(
+        currentMaxScale + 2 > MAX_SCALE ? MAX_SCALE : currentMaxScale + 2,
+      );
+    }
+
+    if (zoomState?.scale !== prevScale) {
+      setPrevScale(zoomState?.scale);
+    }
+  }, [currentMaxScale, prevScale, zoomRef]);
   if (isFetching || resolution === undefined) {
     return null;
   }
@@ -49,8 +84,14 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
         />
       )}
       <ResumableZoom
-        maxScale={20}
-        onTap={() => setHideControls(!hideControls)}
+        ref={zoomRef}
+        maxScale={currentMaxScale}
+        onTap={() => {
+          setHideControls(!hideControls);
+          updateMaxScale();
+        }}
+        onPinchStart={updateMaxScale}
+        tapsEnabled={!zoomLocked}
         panEnabled={!panLocked}
         pinchEnabled={!zoomLocked}>
         <Image source={{uri: imageUri}} style={imageSize} />
