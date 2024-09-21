@@ -11,8 +11,6 @@ import {
 import ZoomControls from './ZoomControls';
 import Animated, {
   FadeIn,
-  SlideInLeft,
-  SlideInRight,
   useAnimatedStyle,
   useSharedValue,
   withSpring,

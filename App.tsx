@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {SafeAreaView, useWindowDimensions} from 'react-native';
 import PermissionWrapper from './components/PermissionWrapper';
