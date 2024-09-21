@@ -25,39 +25,37 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
 
   const zoomRef = useRef<ResumableZoomType>(null);
 
-  const {isFetching, resolution} = useImageResolution({uri: imageUri});
-
   const updateMaxScale = useCallback(() => {
     const zoomState = zoomRef.current?.requestState();
     if (!zoomState) {
       return;
     }
     const currentScale = zoomState.scale;
+    if (currentScale !== prevScale) {
+      // scale has changed
+      setPrevScale(zoomState?.scale);
+    }
+
     if (currentScale < prevScale) {
       // scale is decreasing
       setCurrentMaxScale(
-        currentScale - 2 < INITIAL_MAX_SCALE
-          ? INITIAL_MAX_SCALE
-          : currentMaxScale - 2,
+        currentScale < INITIAL_MAX_SCALE ? INITIAL_MAX_SCALE : currentMaxScale,
       );
     }
 
     if (currentScale > prevScale) {
       // scale is increasing
       setCurrentMaxScale(
-        currentMaxScale + 2 > MAX_SCALE ? MAX_SCALE : currentMaxScale + 2,
+        currentMaxScale > MAX_SCALE ? MAX_SCALE : currentMaxScale,
       );
     }
-
-    if (zoomState?.scale !== prevScale) {
-      setPrevScale(zoomState?.scale);
-    }
   }, [currentMaxScale, prevScale, zoomRef]);
+
+  const {isFetching, resolution} = useImageResolution({uri: imageUri});
   if (isFetching || resolution === undefined) {
     return null;
   }
 
-  // An utility function to get the size without compromising the aspect ratio
   const imageSize = getAspectRatioSize({
     aspectRatio: resolution.width / resolution.height,
     width: width,
@@ -88,13 +86,15 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
         maxScale={currentMaxScale}
         onTap={() => {
           setHideControls(!hideControls);
-          updateMaxScale();
         }}
-        onPinchStart={updateMaxScale}
+        onGestureEnd={updateMaxScale}
         tapsEnabled={!zoomLocked}
         panEnabled={!panLocked}
         pinchEnabled={!zoomLocked}>
-        <Image source={{uri: imageUri}} style={imageSize} />
+        <Image
+          source={{uri: imageUri}}
+          style={[imageSize, {objectFit: 'contain'}]}
+        />
       </ResumableZoom>
     </View>
   );
