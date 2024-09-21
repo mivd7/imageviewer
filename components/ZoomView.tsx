@@ -1,30 +1,65 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {FC, useCallback, useRef, useState} from 'react';
-import {Image, StatusBar, View, useWindowDimensions} from 'react-native';
+import {StatusBar, View, useWindowDimensions} from 'react-native';
 import {
   ResumableZoom,
   ResumableZoomType,
+  SwipeDirection,
   getAspectRatioSize,
   useImageResolution,
 } from 'react-native-zoom-toolkit';
 import ZoomControls from './ZoomControls';
+import Animated, {
+  FadeIn,
+  SlideInLeft,
+  SlideInRight,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+
+interface Props {
+  imageUri: string;
+  onClose: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+}
 
 const INITIAL_MAX_SCALE = 6;
 const MAX_SCALE = 20;
 
-const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
-  imageUri,
-  onClose,
-}) => {
+const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
   const {width} = useWindowDimensions();
   const [panLocked, setPanLocked] = useState(false);
   const [zoomLocked, setZoomLocked] = useState(false);
   const [hideControls, setHideControls] = useState(false);
   const [prevScale, setPrevScale] = useState(0);
   const [currentMaxScale, setCurrentMaxScale] = useState(INITIAL_MAX_SCALE);
+  const offset = useSharedValue(0);
 
+  const handleSwipe = useCallback(
+    (dir: SwipeDirection) => {
+      const controlsLocked = panLocked || zoomLocked;
+      if (!controlsLocked) {
+        offset.value = withSpring(offset.value * 255, {
+          damping: 20,
+          stiffness: 90,
+        });
+        switch (dir) {
+          case 'left':
+            onNext();
+            break;
+          case 'right':
+            onPrevious();
+            break;
+          default:
+            break;
+        }
+      }
+    },
+    [panLocked, zoomLocked, offset, onNext, onPrevious],
+  );
   const zoomRef = useRef<ResumableZoomType>(null);
-
   const updateMaxScale = useCallback(() => {
     const zoomState = zoomRef.current?.requestState();
     if (!zoomState) {
@@ -53,16 +88,27 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
     }
   }, [currentMaxScale, prevScale, zoomRef]);
 
+  const customSpringStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: withSpring(offset.value * 255, {
+            damping: 20,
+            stiffness: 90,
+          }),
+        },
+      ],
+    };
+  });
+
   const {isFetching, resolution} = useImageResolution({uri: imageUri});
   if (isFetching || resolution === undefined) {
     return null;
   }
-
   const imageSize = getAspectRatioSize({
     aspectRatio: resolution.width / resolution.height,
     width: width,
   });
-
   return (
     <View
       style={{
@@ -85,6 +131,7 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
       )}
       <ResumableZoom
         ref={zoomRef}
+        onSwipe={handleSwipe}
         maxScale={currentMaxScale}
         onTap={() => {
           setHideControls(!hideControls);
@@ -93,9 +140,10 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
         tapsEnabled={!zoomLocked}
         panEnabled={!panLocked}
         pinchEnabled={!zoomLocked}>
-        <Image
+        <Animated.Image
+          entering={FadeIn}
           source={{uri: imageUri}}
-          style={[imageSize, {objectFit: 'contain'}]}
+          style={[imageSize, customSpringStyles]}
         />
       </ResumableZoom>
     </View>

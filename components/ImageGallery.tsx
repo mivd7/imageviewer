@@ -4,7 +4,7 @@ import {
   GetPhotosParams,
   PhotoIdentifier,
 } from '@react-native-camera-roll/camera-roll';
-import React, {FC, useState} from 'react';
+import React, {FC, useCallback, useState} from 'react';
 import {
   Image,
   ScrollView,
@@ -38,6 +38,26 @@ const ImageGallery: FC = () => {
       fetchPhotos(params).finally(() => setSelectedAlbum(album));
     }
   };
+
+  const onPrev = useCallback(() => {
+    const currentImageIndex = photos.findIndex(
+      photo => photo.node.id === zoomedInPhoto?.node.id,
+    );
+    const nextImage = photos[currentImageIndex - 1];
+    if (nextImage) {
+      setZoomedInPhoto(nextImage);
+    }
+  }, [photos, zoomedInPhoto?.node.id]);
+
+  const onNext = useCallback(() => {
+    const currentImageIndex = photos.findIndex(
+      photo => photo.node.id === zoomedInPhoto?.node.id,
+    );
+    const nextImage = photos[currentImageIndex + 1];
+    if (nextImage) {
+      setZoomedInPhoto(nextImage);
+    }
+  }, [photos, zoomedInPhoto?.node.id]);
 
   return !zoomedInPhoto ? (
     <ScrollView
@@ -75,6 +95,8 @@ const ImageGallery: FC = () => {
     <ZoomView
       imageUri={zoomedInPhoto.node.image.uri}
       onClose={() => setZoomedInPhoto(undefined)}
+      onNext={onNext}
+      onPrevious={onPrev}
     />
   );
 };
