@@ -1,6 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {FC, useCallback, useRef, useState} from 'react';
-import {StatusBar, View, useWindowDimensions} from 'react-native';
+import {
+  StatusBar,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import {
   ResumableZoom,
   ResumableZoomType,
@@ -131,18 +136,22 @@ const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
         ref={zoomRef}
         onSwipe={handleSwipe}
         maxScale={currentMaxScale}
-        onTap={() => {
-          setHideControls(!hideControls);
-        }}
         onGestureEnd={updateMaxScale}
         tapsEnabled={!zoomLocked}
         panEnabled={!panLocked}
         pinchEnabled={!zoomLocked}>
-        <Animated.Image
-          entering={FadeIn}
-          source={{uri: imageUri}}
-          style={[imageSize, customSpringStyles]}
-        />
+        <TouchableOpacity
+          activeOpacity={1}
+          onPressOut={() => {
+            setHideControls(!hideControls);
+          }}
+          onLongPress={() => setHideControls(false)}>
+          <Animated.Image
+            entering={FadeIn}
+            source={{uri: imageUri}}
+            style={[imageSize, customSpringStyles]}
+          />
+        </TouchableOpacity>
       </ResumableZoom>
     </View>
   );

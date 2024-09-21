@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
+import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface Props {
@@ -18,12 +19,12 @@ const ZoomControls: React.FC<Props> = ({
   zoomLocked,
 }) => {
   return (
-    <View
+    <Animated.View
+      entering={FadeIn}
+      exiting={FadeOut}
       style={{
         position: 'absolute',
-        top: 0,
-        paddingRight: 8,
-        paddingLeft: 8,
+        top: -16,
         width: '100%',
         display: 'flex',
         flexDirection: 'row',
@@ -53,7 +54,7 @@ const ZoomControls: React.FC<Props> = ({
       <TouchableOpacity style={styles.controlButton} onPress={onClose}>
         <Icon name="close" style={styles.closeIcon} />
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -65,7 +66,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    padding: 12,
   },
   closeIcon: {
     fontSize: 24,
