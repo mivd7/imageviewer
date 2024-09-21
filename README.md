@@ -22,8 +22,8 @@ Read more about setting up your environment: https://reactnative.dev/docs/set-up
 1. `$ npm install`
 2. `$ npx pod-install` or cd into the `ios` folder and run `$ pod install`
 3. `$ npm run ios` or `$ npm run start` to start all available simulators.
-4. The app is running on your preferred simulator or device, connected to XCode.
+4. The app is running on your preferred simulator or device, connected to Xcode.
 
 ## 3. How to build?
 
-This app is currently only available for iOS devices. Running `$ npm run build:ios` will create a static build of the app in the `ios` folder. This can be run on your phone or in XCode. You can open and manage the project directly in XCode by opening `imageviewer.xcworkspace`, located in the `ios` folder.
+This app is currently only available for iOS devices. Running `$ npm run build:ios` will create a static build of the app in the `ios` folder. This can be run on your phone or in Xcode. Alternatively you can also build the app with Xcode. You can open and manage the Xcode project by opening `imageviewer.xcworkspace`, located in the `ios` folder.
