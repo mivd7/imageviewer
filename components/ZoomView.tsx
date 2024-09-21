@@ -39,7 +39,7 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
     if (currentScale < prevScale) {
       // scale is decreasing
       setCurrentMaxScale(
-        currentScale < INITIAL_MAX_SCALE
+        currentScale - 2 < INITIAL_MAX_SCALE
           ? INITIAL_MAX_SCALE
           : currentMaxScale - 2,
       );
@@ -48,7 +48,7 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
     if (currentScale > prevScale) {
       // scale is increasing
       setCurrentMaxScale(
-        currentScale > MAX_SCALE ? MAX_SCALE : currentMaxScale + 2,
+        currentScale + 2 > MAX_SCALE ? MAX_SCALE : currentMaxScale + 2,
       );
     }
   }, [currentMaxScale, prevScale, zoomRef]);
