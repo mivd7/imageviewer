@@ -20,7 +20,7 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
   const [panLocked, setPanLocked] = useState(false);
   const [zoomLocked, setZoomLocked] = useState(false);
   const [hideControls, setHideControls] = useState(false);
-  const [prevScale, setPrevScale] = useState(INITIAL_MAX_SCALE);
+  const [prevScale, setPrevScale] = useState(0);
   const [currentMaxScale, setCurrentMaxScale] = useState(INITIAL_MAX_SCALE);
 
   const zoomRef = useRef<ResumableZoomType>(null);
@@ -39,14 +39,16 @@ const ZoomView: FC<{imageUri: string; onClose: () => void}> = ({
     if (currentScale < prevScale) {
       // scale is decreasing
       setCurrentMaxScale(
-        currentScale < INITIAL_MAX_SCALE ? INITIAL_MAX_SCALE : currentMaxScale,
+        currentScale < INITIAL_MAX_SCALE
+          ? INITIAL_MAX_SCALE
+          : currentMaxScale - 2,
       );
     }
 
     if (currentScale > prevScale) {
       // scale is increasing
       setCurrentMaxScale(
-        currentMaxScale > MAX_SCALE ? MAX_SCALE : currentMaxScale,
+        currentScale > MAX_SCALE ? MAX_SCALE : currentMaxScale + 2,
       );
     }
   }, [currentMaxScale, prevScale, zoomRef]);
