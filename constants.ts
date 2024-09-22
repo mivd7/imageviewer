@@ -6,23 +6,6 @@ const isBetween = (x: number, min: number, max: number) => {
     return ((x - min) * (x - max) <= 0);
 };
 
-export const getNextScaleStep = (currentScale: number) => {
-    return scaleSteps.reduce((acc, curr, index) => {
-        if (index + 1 === scaleSteps.length && curr - acc >= 2) {
-            return curr - acc >= 2 ? scaleSteps[scaleSteps.indexOf(acc) + 1] : curr;
-        }
-
-        const isCurrentStep = isBetween(currentScale, acc, curr);
-        if (acc > 0 && isCurrentStep) {
-            return acc;
-        }
-        if (acc > 0 && curr - acc > 2) {
-            return acc;
-        }
-        return curr;
-    }, 0);
-};
-
 export const getCurrentScaleStepIndex = (currentScale: number) => {
     const lastStep = scaleSteps[scaleSteps.length - 1];
     if (currentScale <= scaleSteps[0]) {
