@@ -21,11 +21,8 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import {
-  getCurre,
   getCurrentScaleStepIndex,
-  getNextScaleStep,
   INITIAL_MAX_SCALE,
-  MAX_SCALE,
   scaleSteps,
 } from '../constants';
 
@@ -72,7 +69,7 @@ const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
     }
     const currentScale = zoomState.scale;
     const scaleStepIndex = getCurrentScaleStepIndex(currentScale);
-    console.log('currentStep', scaleSteps[scaleStepIndex]);
+
     if (currentScale !== prevScale) {
       setPrevScale(currentScale);
     }
