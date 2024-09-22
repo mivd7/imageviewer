@@ -20,6 +20,14 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+import {
+  getCurre,
+  getCurrentScaleStepIndex,
+  getNextScaleStep,
+  INITIAL_MAX_SCALE,
+  MAX_SCALE,
+  scaleSteps,
+} from '../constants';
 
 interface Props {
   imageUri: string;
@@ -27,9 +35,6 @@ interface Props {
   onNext: () => void;
   onPrevious: () => void;
 }
-
-const INITIAL_MAX_SCALE = 6;
-const MAX_SCALE = 20;
 
 const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
   const {width} = useWindowDimensions();
@@ -44,10 +49,6 @@ const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
     (dir: SwipeDirection) => {
       const controlsLocked = panLocked || zoomLocked;
       if (!controlsLocked) {
-        offset.value = withSpring(offset.value * 255, {
-          damping: 20,
-          stiffness: 90,
-        });
         switch (dir) {
           case 'left':
             onNext();
@@ -60,36 +61,32 @@ const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
         }
       }
     },
-    [panLocked, zoomLocked, offset, onNext, onPrevious],
+    [panLocked, zoomLocked, onNext, onPrevious],
   );
   const zoomRef = useRef<ResumableZoomType>(null);
   const updateMaxScale = useCallback(() => {
+    setHideControls(true);
     const zoomState = zoomRef.current?.requestState();
     if (!zoomState) {
       return;
     }
     const currentScale = zoomState.scale;
+    const scaleStepIndex = getCurrentScaleStepIndex(currentScale);
+    console.log('currentStep', scaleSteps[scaleStepIndex]);
     if (currentScale !== prevScale) {
-      // scale has changed
-      setPrevScale(zoomState?.scale);
+      setPrevScale(currentScale);
     }
 
     if (currentScale < prevScale) {
-      // scale is decreasing
-      setCurrentMaxScale(
-        currentScale - 2 < INITIAL_MAX_SCALE
-          ? INITIAL_MAX_SCALE
-          : currentMaxScale - 2,
-      );
+      setCurrentMaxScale(scaleSteps[scaleStepIndex - 1] ?? scaleSteps[0]);
     }
 
     if (currentScale > prevScale) {
-      // scale is increasing
       setCurrentMaxScale(
-        currentScale + 2 > MAX_SCALE ? MAX_SCALE : currentMaxScale + 2,
+        scaleSteps[scaleStepIndex + 1] ?? scaleSteps[scaleSteps.length - 1],
       );
     }
-  }, [currentMaxScale, prevScale, zoomRef]);
+  }, [prevScale]);
 
   const customSpringStyles = useAnimatedStyle(() => {
     return {
