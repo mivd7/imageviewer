@@ -15,10 +15,9 @@ import {
 } from 'react-native-zoom-toolkit';
 import ZoomControls from './ZoomControls';
 import Animated, {
-  FadeIn,
+  SlideInLeft,
+  SlideInRight,
   useAnimatedStyle,
-  useSharedValue,
-  withSpring,
 } from 'react-native-reanimated';
 import {
   getCurrentScaleStepIndex,
@@ -40,7 +39,6 @@ const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
   const [hideControls, setHideControls] = useState(false);
   const [prevScale, setPrevScale] = useState(0);
   const [currentMaxScale, setCurrentMaxScale] = useState(INITIAL_MAX_SCALE);
-  const offset = useSharedValue(0);
 
   const handleSwipe = useCallback(
     (dir: SwipeDirection) => {
@@ -85,14 +83,13 @@ const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
     }
   }, [prevScale]);
 
+  const scale = zoomRef?.current?.requestState().scale;
+
   const customSpringStyles = useAnimatedStyle(() => {
     return {
       transform: [
         {
-          translateX: withSpring(offset.value * 255, {
-            damping: 20,
-            stiffness: 90,
-          }),
+          scale: scale ?? 1 * 1.25,
         },
       ],
     };
@@ -141,7 +138,8 @@ const ZoomView: FC<Props> = ({imageUri, onClose, onNext, onPrevious}) => {
           }}
           onLongPress={() => setHideControls(false)}>
           <Animated.Image
-            entering={FadeIn}
+            entering={SlideInRight.duration(250)}
+            exiting={SlideInLeft.duration(250)}
             source={{uri: imageUri}}
             style={[imageSize, customSpringStyles]}
           />
